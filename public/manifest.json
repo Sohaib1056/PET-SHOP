@@ -1,0 +1,49 @@
+{
+  "name": "Pet Shop Management System",
+  "short_name": "Pet Shop",
+  "description": "Professional Pet Shop Management System - Complete solution for pet store operations",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#00B894",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "productivity", "shopping"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "POS",
+      "short_name": "POS",
+      "description": "Point of Sale",
+      "url": "/pos",
+      "icons": []
+    },
+    {
+      "name": "Shop",
+      "short_name": "Shop",
+      "description": "Browse Products",
+      "url": "/shop",
+      "icons": []
+    },
+    {
+      "name": "Inventory",
+      "short_name": "Inventory",
+      "description": "Manage Inventory",
+      "url": "/inventory",
+      "icons": []
+    }
+  ]
+}

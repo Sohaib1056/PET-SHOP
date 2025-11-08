@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Icon Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        canvas {
+            border: 1px solid #ddd;
+            margin: 10px;
+        }
+        button {
+            background: #00B894;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #00947a;
+        }
+        .instructions {
+            background: #e8f5f1;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Pet Shop Icon Generator</h1>
+        
+        <div class="instructions">
+            <h3>Instructions:</h3>
+            <ol>
+                <li>Click "Generate Icons" button below</li>
+                <li>Right-click on each canvas and select "Save image as..."</li>
+                <li>Save with the specified filename in the public folder</li>
+            </ol>
+        </div>
+
+        <button onclick="generateAllIcons()">🚀 Generate All Icons</button>
+        <button onclick="downloadAll()">📥 Download All (Auto)</button>
+
+        <div id="canvas-container"></div>
+    </div>
+
+    <script>
+        function drawIcon(canvas, size) {
+            const ctx = canvas.getContext('2d');
+            canvas.width = size;
+            canvas.height = size;
+            
+            // Background gradient
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#00B894');
+            gradient.addColorStop(1, '#00947a');
+            ctx.fillStyle = gradient;
+            
+            if (size >= 256) {
+                // Round corners for larger icons
+                const radius = size * 0.1;
+                ctx.beginPath();
+                ctx.moveTo(radius, 0);
+                ctx.lineTo(size - radius, 0);
+                ctx.quadraticCurveTo(size, 0, size, radius);
+                ctx.lineTo(size, size - radius);
+                ctx.quadraticCurveTo(size, size, size - radius, size);
+                ctx.lineTo(radius, size);
+                ctx.quadraticCurveTo(0, size, 0, size - radius);
+                ctx.lineTo(0, radius);
+                ctx.quadraticCurveTo(0, 0, radius, 0);
+                ctx.closePath();
+                ctx.fill();
+            } else {
+                ctx.fillRect(0, 0, size, size);
+            }
+            
+            // Draw paw print (scaled to size)
+            const scale = size / 512;
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+            
+            // Main pad
+            ctx.beginPath();
+            ctx.ellipse(256*scale, 320*scale, 85*scale, 95*scale, 0, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Top toe
+            ctx.beginPath();
+            ctx.ellipse(256*scale, 180*scale, 45*scale, 60*scale, 0, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Left toe
+            ctx.save();
+            ctx.translate(160*scale, 220*scale);
+            ctx.rotate(-25 * Math.PI / 180);
+            ctx.beginPath();
+            ctx.ellipse(0, 0, 45*scale, 58*scale, 0, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.restore();
+            
+            // Right toe
+            ctx.save();
+            ctx.translate(352*scale, 220*scale);
+            ctx.rotate(25 * Math.PI / 180);
+            ctx.beginPath();
+            ctx.ellipse(0, 0, 45*scale, 58*scale, 0, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.restore();
+            
+            // Far left toe
+            ctx.save();
+            ctx.translate(120*scale, 290*scale);
+            ctx.rotate(-35 * Math.PI / 180);
+            ctx.beginPath();
+            ctx.ellipse(0, 0, 40*scale, 52*scale, 0, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.restore();
+            
+            // Far right toe
+            ctx.save();
+            ctx.translate(392*scale, 290*scale);
+            ctx.rotate(35 * Math.PI / 180);
+            ctx.beginPath();
+            ctx.ellipse(0, 0, 40*scale, 52*scale, 0, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.restore();
+        }
+
+        function generateAllIcons() {
+            const container = document.getElementById('canvas-container');
+            container.innerHTML = '';
+            
+            const sizes = [
+                {size: 16, name: 'favicon-16x16.png'},
+                {size: 32, name: 'favicon-32x32.png'},
+                {size: 64, name: 'paw-64x64.png'},
+                {size: 128, name: 'paw-128x128.png'},
+                {size: 256, name: 'paw.png'},
+                {size: 512, name: 'paw-512x512.png'},
+                {size: 1024, name: 'paw-1024x1024.png'}
+            ];
+            
+            sizes.forEach(item => {
+                const wrapper = document.createElement('div');
+                wrapper.style.display = 'inline-block';
+                wrapper.style.textAlign = 'center';
+                wrapper.style.margin = '10px';
+                
+                const canvas = document.createElement('canvas');
+                drawIcon(canvas, item.size);
+                
+                const label = document.createElement('div');
+                label.textContent = item.name;
+                label.style.marginTop = '5px';
+                label.style.fontSize = '12px';
+                
+                wrapper.appendChild(canvas);
+                wrapper.appendChild(label);
+                container.appendChild(wrapper);
+            });
+        }
+
+        function downloadAll() {
+            const sizes = [
+                {size: 16, name: 'favicon-16x16.png'},
+                {size: 32, name: 'favicon-32x32.png'},
+                {size: 64, name: 'paw-64x64.png'},
+                {size: 128, name: 'paw-128x128.png'},
+                {size: 256, name: 'paw.png'},
+                {size: 512, name: 'paw-512x512.png'},
+                {size: 1024, name: 'paw-1024x1024.png'}
+            ];
+            
+            sizes.forEach((item, index) => {
+                setTimeout(() => {
+                    const canvas = document.createElement('canvas');
+                    drawIcon(canvas, item.size);
+                    
+                    canvas.toBlob(blob => {
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = item.name;
+                        a.click();
+                        URL.revokeObjectURL(url);
+                    });
+                }, index * 200);
+            });
+            
+            alert('Icons will download automatically. Save them in the public folder.');
+        }
+
+        // Auto-generate on load
+        window.onload = generateAllIcons;
+    </script>
+</body>
+</html>
