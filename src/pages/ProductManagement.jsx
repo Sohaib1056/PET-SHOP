@@ -13,6 +13,8 @@ import {
   Save,
 } from 'lucide-react';
 import { formatCurrency } from '../utils/helpers';
+import ConfirmDialog from '../components/ConfirmDialog';
+import AlertDialog from '../components/AlertDialog';
 
 const ProductManagement = () => {
   const { products, suppliers, addProduct, updateProduct, deleteProduct } = useBusinessContext();
@@ -22,6 +24,10 @@ const ProductManagement = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [productToDelete, setProductToDelete] = useState(null);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertConfig, setAlertConfig] = useState({ title: '', message: '', type: 'error' });
   const [formData, setFormData] = useState({
     barcode: '',
     sku: '',
@@ -118,7 +124,12 @@ const ProductManagement = () => {
   // Save product
   const saveProduct = () => {
     if (!formData.name || !formData.barcode || !formData.salePrice) {
-      alert('Please fill all required fields!');
+      setAlertConfig({
+        title: 'Missing Information',
+        message: 'Please fill all required fields (Name, Barcode, and Sale Price)!',
+        type: 'error'
+      });
+      setShowAlert(true);
       return;
     }
 
@@ -147,9 +158,16 @@ const ProductManagement = () => {
   };
 
   // Delete product
-  const handleDelete = (id) => {
-    if (confirm('Are you sure you want to delete this product?')) {
-      deleteProduct(id);
+  const handleDelete = (product) => {
+    setProductToDelete(product);
+    setShowDeleteDialog(true);
+  };
+
+  const confirmDelete = () => {
+    if (productToDelete) {
+      deleteProduct(productToDelete.id);
+      setShowDeleteDialog(false);
+      setProductToDelete(null);
     }
   };
 
@@ -374,7 +392,7 @@ const ProductManagement = () => {
                         <Edit className="h-5 w-5" />
                       </button>
                       <button
-                        onClick={() => handleDelete(product.id)}
+                        onClick={() => handleDelete(product)}
                         className="text-red-600 hover:text-red-800"
                       >
                         <Trash2 className="h-5 w-5" />
@@ -645,6 +663,28 @@ const ProductManagement = () => {
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={showDeleteDialog}
+        onClose={() => setShowDeleteDialog(false)}
+        onConfirm={confirmDelete}
+        title="Delete Product"
+        message={`Are you sure you want to delete "${productToDelete?.name}"? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
+      />
+
+      {/* Alert Dialog */}
+      <AlertDialog
+        isOpen={showAlert}
+        onClose={() => setShowAlert(false)}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        type={alertConfig.type}
+        buttonText="OK"
+      />
     </div>
   );
 };

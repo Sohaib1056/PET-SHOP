@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext';
 const Header = ({ onMenuToggle, isMobileMenuOpen }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
   const { getCartCount } = useCart();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -57,10 +58,75 @@ const Header = ({ onMenuToggle, isMobileMenuOpen }) => {
         {/* Right Section - Enhanced */}
         <div className="flex items-center space-x-2 ml-4">
           {/* Notifications with Badge */}
-          <button className="relative p-2.5 rounded-xl hover:bg-hospital-light transition-all duration-300 group hover:scale-105">
-            <Bell className="h-5 w-5 text-gray-600 group-hover:text-hospital-primary transition-colors duration-300" />
-            <span className="absolute top-1.5 right-1.5 bg-gradient-to-r from-orange-400 to-red-500 h-2.5 w-2.5 rounded-full animate-pulse-slow shadow-lg"></span>
-          </button>
+          <div className="relative">
+            <button 
+              onClick={() => setShowNotifications(!showNotifications)}
+              className="relative p-2.5 rounded-xl hover:bg-hospital-light transition-all duration-300 group hover:scale-105"
+            >
+              <Bell className="h-5 w-5 text-gray-600 group-hover:text-hospital-primary transition-colors duration-300" />
+              <span className="absolute top-1.5 right-1.5 bg-gradient-to-r from-orange-400 to-red-500 h-2.5 w-2.5 rounded-full animate-pulse-slow shadow-lg"></span>
+            </button>
+
+            {/* Notifications Dropdown */}
+            {showNotifications && (
+              <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-2xl border border-gray-100 z-50 animate-fadeIn">
+                <div className="px-4 py-3 border-b border-gray-100">
+                  <h3 className="text-sm font-bold text-gray-800">Notifications</h3>
+                </div>
+                
+                <div className="max-h-96 overflow-y-auto">
+                  {/* Notification Items */}
+                  <div className="px-4 py-3 hover:bg-hospital-light transition-colors duration-200 border-b border-gray-50">
+                    <div className="flex items-start space-x-3">
+                      <div className="bg-blue-100 p-2 rounded-lg">
+                        <ShoppingCart className="h-4 w-4 text-blue-600" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-gray-800">New Order Received</p>
+                        <p className="text-xs text-gray-600 mt-0.5">Order #12345 has been placed</p>
+                        <p className="text-xs text-gray-400 mt-1">2 minutes ago</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="px-4 py-3 hover:bg-hospital-light transition-colors duration-200 border-b border-gray-50">
+                    <div className="flex items-start space-x-3">
+                      <div className="bg-yellow-100 p-2 rounded-lg">
+                        <Bell className="h-4 w-4 text-yellow-600" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-gray-800">Low Stock Alert</p>
+                        <p className="text-xs text-gray-600 mt-0.5">5 products are running low on stock</p>
+                        <p className="text-xs text-gray-400 mt-1">1 hour ago</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="px-4 py-3 hover:bg-hospital-light transition-colors duration-200 border-b border-gray-50">
+                    <div className="flex items-start space-x-3">
+                      <div className="bg-green-100 p-2 rounded-lg">
+                        <User className="h-4 w-4 text-green-600" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-gray-800">New Customer</p>
+                        <p className="text-xs text-gray-600 mt-0.5">John Doe registered as a new customer</p>
+                        <p className="text-xs text-gray-400 mt-1">3 hours ago</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="px-4 py-3 border-t border-gray-100">
+                  <button 
+                    onClick={() => setShowNotifications(false)}
+                    className="text-sm text-hospital-primary hover:text-hospital-dark font-semibold w-full text-center transition-colors duration-200"
+                  >
+                    View All Notifications
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Cart with Enhanced Badge */}
           <Link to="/cart" className="relative p-2.5 rounded-xl hover:bg-hospital-light transition-all duration-300 group hover:scale-105">

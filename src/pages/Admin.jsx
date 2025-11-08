@@ -12,6 +12,7 @@ import {
 import { products as initialProducts, categories } from '../data/products';
 import { formatCurrency } from '../utils/helpers';
 import { useCart } from '../context/CartContext';
+import ConfirmDialog from '../components/ConfirmDialog';
 
 const Admin = () => {
   const { orders } = useCart();
@@ -20,6 +21,8 @@ const Admin = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [editingProduct, setEditingProduct] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [productToDelete, setProductToDelete] = useState(null);
 
   // Calculate statistics
   const totalRevenue = orders.reduce((sum, order) => sum + order.total, 0);
@@ -33,9 +36,16 @@ const Admin = () => {
       p.category.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleDeleteProduct = (productId) => {
-    if (window.confirm('Are you sure you want to delete this product?')) {
-      setProducts(products.filter((p) => p.id !== productId));
+  const handleDeleteProduct = (product) => {
+    setProductToDelete(product);
+    setShowDeleteDialog(true);
+  };
+
+  const confirmDeleteProduct = () => {
+    if (productToDelete) {
+      setProducts(products.filter((p) => p.id !== productToDelete.id));
+      setShowDeleteDialog(false);
+      setProductToDelete(null);
     }
   };
 
@@ -326,7 +336,7 @@ const Admin = () => {
                               <Edit className="h-4 w-4" />
                             </button>
                             <button
-                              onClick={() => handleDeleteProduct(product.id)}
+                              onClick={() => handleDeleteProduct(product)}
                               className="p-2 text-red-600 hover:bg-red-50 rounded transition"
                             >
                               <Trash2 className="h-4 w-4" />
@@ -413,8 +423,19 @@ const Admin = () => {
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={showDeleteDialog}
+        onClose={() => setShowDeleteDialog(false)}
+        onConfirm={confirmDeleteProduct}
+        title="Delete Product"
+        message={`Are you sure you want to delete "${productToDelete?.name}"? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
+      />
     </div>
   );
 };
-
 export default Admin;

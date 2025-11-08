@@ -14,6 +14,8 @@ import {
   X,
 } from 'lucide-react';
 import { formatCurrency } from '../utils/helpers';
+import ConfirmDialog from '../components/ConfirmDialog';
+import AlertDialog from '../components/AlertDialog';
 
 const POS = () => {
   const {
@@ -37,6 +39,9 @@ const POS = () => {
   const [showReceipt, setShowReceipt] = useState(false);
   const [lastSale, setLastSale] = useState(null);
   const [showCustomerModal, setShowCustomerModal] = useState(false);
+  const [showClearDialog, setShowClearDialog] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertConfig, setAlertConfig] = useState({ title: '', message: '', type: 'error' });
 
   const barcodeInputRef = useRef(null);
   const receiptRef = useRef(null);
@@ -56,7 +61,12 @@ const POS = () => {
       addToCart(product);
       setSearchQuery('');
     } else {
-      alert('Product not found!');
+      setAlertConfig({
+        title: 'Product Not Found',
+        message: `No product found with barcode: ${barcode}`,
+        type: 'error'
+      });
+      setShowAlert(true);
     }
   };
 
@@ -85,14 +95,24 @@ const POS = () => {
   // Add product to cart
   const addToCart = (product) => {
     if (product.quantity <= 0) {
-      alert('Product out of stock!');
+      setAlertConfig({
+        title: 'Out of Stock',
+        message: `${product.name} is currently out of stock!`,
+        type: 'warning'
+      });
+      setShowAlert(true);
       return;
     }
 
     const existing = cart.find((item) => item.id === product.id);
     if (existing) {
       if (existing.quantity >= product.quantity) {
-        alert('Cannot add more than available stock!');
+        setAlertConfig({
+          title: 'Stock Limit Reached',
+          message: `Cannot add more than available stock (${product.quantity} units)!`,
+          type: 'warning'
+        });
+        setShowAlert(true);
         return;
       }
       updateQuantity(product.id, existing.quantity + 1);
@@ -112,7 +132,12 @@ const POS = () => {
   const updateQuantity = (productId, newQuantity) => {
     const product = products.find((p) => p.id === productId);
     if (newQuantity > product.quantity) {
-      alert('Cannot exceed available stock!');
+      setAlertConfig({
+        title: 'Stock Limit Exceeded',
+        message: `Cannot exceed available stock (${product.quantity} units)!`,
+        type: 'warning'
+      });
+      setShowAlert(true);
       return;
     }
     if (newQuantity <= 0) {
@@ -129,23 +154,36 @@ const POS = () => {
 
   // Clear cart
   const clearCart = () => {
-    if (confirm('Are you sure you want to clear the cart?')) {
-      setCart([]);
-      setSelectedCustomer(null);
-      setDiscount(0);
-      setCashReceived('');
-    }
+    setShowClearDialog(true);
+  };
+
+  const confirmClearCart = () => {
+    setCart([]);
+    setSelectedCustomer(null);
+    setDiscount(0);
+    setCashReceived('');
+    setShowClearDialog(false);
   };
 
   // Complete sale
   const completeSale = () => {
     if (cart.length === 0) {
-      alert('Cart is empty!');
+      setAlertConfig({
+        title: 'Empty Cart',
+        message: 'Please add items to the cart before completing sale!',
+        type: 'warning'
+      });
+      setShowAlert(true);
       return;
     }
 
     if (paymentMethod === 'Cash' && parseFloat(cashReceived || 0) < total) {
-      alert('Insufficient cash received!');
+      setAlertConfig({
+        title: 'Insufficient Payment',
+        message: `Cash received (${formatCurrency(parseFloat(cashReceived || 0))}) is less than total amount (${formatCurrency(total)})!`,
+        type: 'error'
+      });
+      setShowAlert(true);
       return;
     }
 
@@ -647,6 +685,28 @@ const POS = () => {
           </div>
         </div>
       )}
+
+      {/* Clear Cart Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={showClearDialog}
+        onClose={() => setShowClearDialog(false)}
+        onConfirm={confirmClearCart}
+        title="Clear Cart"
+        message="Are you sure you want to clear the entire cart? This action cannot be undone."
+        confirmText="Clear Cart"
+        cancelText="Cancel"
+        type="warning"
+      />
+
+      {/* Alert Dialog */}
+      <AlertDialog
+        isOpen={showAlert}
+        onClose={() => setShowAlert(false)}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        type={alertConfig.type}
+        buttonText="OK"
+      />
     </div>
   );
 };

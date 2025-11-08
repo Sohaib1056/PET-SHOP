@@ -14,6 +14,8 @@ import {
   TrendingUp,
 } from 'lucide-react';
 import { formatCurrency } from '../utils/helpers';
+import ConfirmDialog from '../components/ConfirmDialog';
+import AlertDialog from '../components/AlertDialog';
 
 const SupplierManagement = () => {
   const { suppliers, purchaseRecords, addSupplier, updateSupplier, deleteSupplier } =
@@ -22,6 +24,10 @@ const SupplierManagement = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editingSupplier, setEditingSupplier] = useState(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [supplierToDelete, setSupplierToDelete] = useState(null);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertConfig, setAlertConfig] = useState({ title: '', message: '', type: 'error' });
   const [formData, setFormData] = useState({
     name: '',
     contact: '',
@@ -92,7 +98,12 @@ const SupplierManagement = () => {
   // Save supplier
   const saveSupplier = () => {
     if (!formData.name || !formData.phone) {
-      alert('Please fill all required fields!');
+      setAlertConfig({
+        title: 'Missing Information',
+        message: 'Please fill all required fields (Name and Phone)!',
+        type: 'error'
+      });
+      setShowAlert(true);
       return;
     }
 
@@ -106,9 +117,16 @@ const SupplierManagement = () => {
   };
 
   // Delete supplier
-  const handleDelete = (id) => {
-    if (confirm('Are you sure you want to delete this supplier?')) {
-      deleteSupplier(id);
+  const handleDelete = (supplier) => {
+    setSupplierToDelete(supplier);
+    setShowDeleteDialog(true);
+  };
+
+  const confirmDelete = () => {
+    if (supplierToDelete) {
+      deleteSupplier(supplierToDelete.id);
+      setShowDeleteDialog(false);
+      setSupplierToDelete(null);
     }
   };
 
@@ -290,7 +308,7 @@ const SupplierManagement = () => {
                   <span>Edit</span>
                 </button>
                 <button
-                  onClick={() => handleDelete(supplier.id)}
+                  onClick={() => handleDelete(supplier)}
                   className="flex-1 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition flex items-center justify-center space-x-2"
                 >
                   <Trash2 className="h-4 w-4" />
@@ -442,6 +460,28 @@ const SupplierManagement = () => {
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={showDeleteDialog}
+        onClose={() => setShowDeleteDialog(false)}
+        onConfirm={confirmDelete}
+        title="Delete Supplier"
+        message={`Are you sure you want to delete "${supplierToDelete?.name}"? This action cannot be undone and will remove all supplier data.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
+      />
+
+      {/* Alert Dialog */}
+      <AlertDialog
+        isOpen={showAlert}
+        onClose={() => setShowAlert(false)}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        type={alertConfig.type}
+        buttonText="OK"
+      />
     </div>
   );
 };

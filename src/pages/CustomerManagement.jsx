@@ -16,6 +16,8 @@ import {
   ShoppingBag,
 } from 'lucide-react';
 import { formatCurrency } from '../utils/helpers';
+import ConfirmDialog from '../components/ConfirmDialog';
+import AlertDialog from '../components/AlertDialog';
 
 const CustomerManagement = () => {
   const { customers, customerHistory, addCustomer, updateCustomer, deleteCustomer } =
@@ -24,10 +26,12 @@ const CustomerManagement = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [editingCustomer, setEditingCustomer] = useState(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [customerToDelete, setCustomerToDelete] = useState(null);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertConfig, setAlertConfig] = useState({ title: '', message: '', type: 'error' });
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -84,7 +88,12 @@ const CustomerManagement = () => {
   // Save customer
   const saveCustomer = () => {
     if (!formData.name || !formData.phone) {
-      alert('Please fill all required fields!');
+      setAlertConfig({
+        title: 'Missing Information',
+        message: 'Please fill all required fields (Name and Phone)!',
+        type: 'error'
+      });
+      setShowAlert(true);
       return;
     }
 
@@ -97,25 +106,18 @@ const CustomerManagement = () => {
     setShowModal(false);
   };
 
-  // Delete customer - Open confirmation modal
+  // Delete customer
   const handleDelete = (customer) => {
     setCustomerToDelete(customer);
-    setShowDeleteModal(true);
+    setShowDeleteDialog(true);
   };
 
-  // Confirm delete
   const confirmDelete = () => {
     if (customerToDelete) {
       deleteCustomer(customerToDelete.id);
-      setShowDeleteModal(false);
+      setShowDeleteDialog(false);
       setCustomerToDelete(null);
     }
-  };
-
-  // Cancel delete
-  const cancelDelete = () => {
-    setShowDeleteModal(false);
-    setCustomerToDelete(null);
   };
 
   // View purchase history
@@ -453,67 +455,27 @@ const CustomerManagement = () => {
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
-      {showDeleteModal && customerToDelete && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl animate-scaleIn">
-            {/* Icon */}
-            <div className="flex justify-center mb-6">
-              <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center">
-                <Trash2 className="h-10 w-10 text-red-600" />
-              </div>
-            </div>
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={showDeleteDialog}
+        onClose={() => setShowDeleteDialog(false)}
+        onConfirm={confirmDelete}
+        title="Delete Customer"
+        message={`Are you sure you want to delete ${customerToDelete?.name}? This action cannot be undone and will remove all customer data and purchase history.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
+      />
 
-            {/* Title */}
-            <h2 className="text-2xl font-bold text-gray-800 text-center mb-3">
-              Delete Customer?
-            </h2>
-
-            {/* Message */}
-            <div className="bg-gray-50 rounded-xl p-4 mb-6">
-              <p className="text-gray-700 text-center mb-4">
-                Are you sure you want to delete this customer? This action cannot be undone.
-              </p>
-              <div className="bg-white rounded-lg p-3 border border-gray-200">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center text-white font-bold">
-                    {customerToDelete.name.charAt(0).toUpperCase()}
-                  </div>
-                  <div>
-                    <p className="font-semibold text-gray-800">{customerToDelete.name}</p>
-                    <p className="text-sm text-gray-600">
-                      {customerToDelete.phone} • {customerToDelete.petName}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Warning */}
-            <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-6">
-              <p className="text-sm text-red-800 text-center font-medium">
-                ⚠️ All purchase history and data will be permanently deleted
-              </p>
-            </div>
-
-            {/* Buttons */}
-            <div className="flex space-x-3">
-              <button
-                onClick={cancelDelete}
-                className="flex-1 px-6 py-3 border-2 border-gray-300 rounded-xl hover:bg-gray-50 transition-all font-semibold text-gray-700 hover:scale-105"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmDelete}
-                className="flex-1 px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all font-semibold hover:scale-105 shadow-lg hover:shadow-xl"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Alert Dialog */}
+      <AlertDialog
+        isOpen={showAlert}
+        onClose={() => setShowAlert(false)}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        type={alertConfig.type}
+        buttonText="OK"
+      />
 
       {/* Purchase History Modal */}
       {showHistoryModal && selectedCustomer && (
