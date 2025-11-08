@@ -1,24 +1,15 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Search, Bell, User, Menu, X, LogOut, Settings, UserCircle } from 'lucide-react';
+import { ShoppingCart, Bell, Menu, X, LogOut, Settings, UserCircle, PanelLeftClose, PanelLeft, PawPrint } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 
-const Header = ({ onMenuToggle, isMobileMenuOpen }) => {
-  const [searchQuery, setSearchQuery] = useState('');
+const Header = ({ onMenuToggle, isMobileMenuOpen, isSidebarCollapsed = false, onSidebarToggle }) => {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const { getCartCount } = useCart();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/shop?search=${searchQuery}`);
-      setSearchQuery('');
-    }
-  };
 
   const handleLogout = () => {
     logout();
@@ -26,34 +17,54 @@ const Header = ({ onMenuToggle, isMobileMenuOpen }) => {
   };
 
   return (
-    <header className="bg-white/80 backdrop-blur-lg border-b border-gray-100 h-16 fixed top-0 right-0 left-64 z-30 shadow-lg">
-      <div className="h-full px-6 flex items-center justify-between">
-        {/* Mobile Menu Button */}
-        <button
-          onClick={onMenuToggle}
-          className="lg:hidden p-2 rounded-xl hover:bg-hospital-light transition-all duration-300 hover:scale-105"
-        >
-          {isMobileMenuOpen ? (
-            <X className="h-6 w-6 text-gray-700" />
-          ) : (
-            <Menu className="h-6 w-6 text-gray-700" />
-          )}
-        </button>
+    <header className="bg-white backdrop-blur-lg border-b border-gray-200 h-20 fixed top-0 left-0 right-0 z-40 shadow-lg transition-all duration-300">
+      <div className="h-full px-6 flex items-center justify-between gap-4">
+        {/* Left Section - Logo & Sidebar Toggle */}
+        <div className="flex items-center gap-4">
+          {/* Logo with Sidebar Toggle Button - Desktop */}
+          <div className="hidden lg:flex items-center gap-3 bg-gradient-to-r from-hospital-primary via-teal-500 to-teal-600 px-6 py-3 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300">
+            {/* Sidebar Toggle Icon */}
+            <button
+              onClick={onSidebarToggle}
+              className="p-2 hover:bg-white/20 rounded-xl transition-all duration-300 group"
+              title={isSidebarCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
+            >
+              {isSidebarCollapsed ? (
+                <PanelLeft className="h-6 w-6 text-white group-hover:scale-110 transition-transform duration-300" />
+              ) : (
+                <PanelLeftClose className="h-6 w-6 text-white group-hover:scale-110 transition-transform duration-300" />
+              )}
+            </button>
 
-        {/* Search Bar - Enhanced */}
-        <form onSubmit={handleSearch} className="flex-1 max-w-lg animate-fadeIn">
-          <div className="relative group">
-            <input
-              type="text"
-              placeholder="Search products, orders, customers..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-hospital-primary bg-gray-50 transition-all duration-300 hover:shadow-md focus:shadow-lg group-hover:bg-white"
-            />
-            <Search className="absolute left-4 top-3.5 h-5 w-5 text-gray-400 group-hover:text-hospital-primary transition-colors duration-300" />
-            <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-hospital-primary/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10 blur-xl"></div>
+            {/* Divider */}
+            <div className="h-8 w-px bg-white/40"></div>
+
+            {/* Logo */}
+            <Link to="/" className="flex items-center gap-3 group">
+              <div className="bg-white rounded-xl p-2 shadow-lg group-hover:scale-110 group-hover:rotate-12 transition-all duration-300">
+                <PawPrint className="h-7 w-7 text-hospital-primary" />
+              </div>
+              {!isSidebarCollapsed && (
+                <div className="text-white">
+                  <h1 className="font-bold text-lg leading-tight tracking-tight">Pet Shop</h1>
+                  <p className="text-xs opacity-90 font-medium leading-tight">Management System</p>
+                </div>
+              )}
+            </Link>
           </div>
-        </form>
+
+          {/* Mobile Menu Button */}
+          <button
+            onClick={onMenuToggle}
+            className="lg:hidden p-3 rounded-2xl bg-gradient-to-r from-hospital-primary to-teal-600 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+          >
+            {isMobileMenuOpen ? (
+              <X className="h-7 w-7 text-white" />
+            ) : (
+              <Menu className="h-7 w-7 text-white" />
+            )}
+          </button>
+        </div>
 
         {/* Right Section - Enhanced */}
         <div className="flex items-center space-x-2 ml-4">

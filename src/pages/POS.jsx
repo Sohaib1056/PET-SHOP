@@ -221,9 +221,96 @@ const POS = () => {
   // Print receipt
   const printReceipt = () => {
     const printWindow = window.open('', '_blank');
-    printWindow.document.write(receiptRef.current.innerHTML);
+    const receiptContent = receiptRef.current.innerHTML;
+    
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Receipt - ${lastSale?.id}</title>
+          <style>
+            * {
+              margin: 0;
+              padding: 0;
+              box-sizing: border-box;
+            }
+            body {
+              font-family: 'Courier New', monospace;
+              padding: 20px;
+              max-width: 400px;
+              margin: 0 auto;
+            }
+            h3 {
+              font-size: 20px;
+              margin-bottom: 5px;
+            }
+            p {
+              font-size: 12px;
+              margin: 2px 0;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              margin: 10px 0;
+            }
+            th, td {
+              padding: 8px 4px;
+              text-align: left;
+              border-bottom: 1px solid #ddd;
+            }
+            th {
+              font-weight: bold;
+              border-bottom: 2px solid #333;
+            }
+            .text-center {
+              text-align: center;
+            }
+            .text-right {
+              text-align: right;
+            }
+            .font-bold {
+              font-weight: bold;
+            }
+            .border-t {
+              border-top: 2px solid #333;
+              padding-top: 10px;
+              margin-top: 10px;
+            }
+            .border-b {
+              border-bottom: 1px solid #333;
+              padding-bottom: 10px;
+              margin-bottom: 10px;
+            }
+            .space-y-2 > * {
+              margin: 5px 0;
+            }
+            .flex {
+              display: flex;
+            }
+            .justify-between {
+              justify-content: space-between;
+            }
+            strong {
+              font-weight: bold;
+            }
+            @media print {
+              body {
+                padding: 0;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          ${receiptContent}
+        </body>
+      </html>
+    `);
+    
     printWindow.document.close();
-    printWindow.print();
+    setTimeout(() => {
+      printWindow.print();
+      printWindow.close();
+    }, 250);
   };
 
   return (
@@ -584,12 +671,12 @@ const POS = () => {
 
             <div ref={receiptRef} className="p-6 border-2 border-gray-200 rounded-lg">
               <div className="text-center mb-6">
-                <h3 className="text-2xl font-bold text-gray-800">Pet Shop</h3>
-                <p className="text-sm text-gray-600">Abbottabad Pet Hospital</p>
-                <p className="text-xs text-gray-500">Pet Hospital Management System</p>
+                <h3 className="text-2xl font-bold">Pet Shop</h3>
+                <p className="text-sm">Abbottabad Pet Hospital</p>
+                <p className="text-xs">Pet Hospital Management System</p>
               </div>
 
-              <div className="border-t border-b border-gray-300 py-3 mb-4 text-sm">
+              <div className="border-b py-3 mb-4 text-sm">
                 <p>
                   <strong>Sale ID:</strong> {lastSale.id}
                 </p>
@@ -602,22 +689,22 @@ const POS = () => {
               </div>
 
               <div className="mb-4">
-                <table className="w-full text-sm">
+                <table style={{ width: '100%', fontSize: '12px', borderCollapse: 'collapse' }}>
                   <thead>
-                    <tr className="border-b border-gray-300">
-                      <th className="text-left py-2">Item</th>
-                      <th className="text-center py-2">Qty</th>
-                      <th className="text-right py-2">Price</th>
-                      <th className="text-right py-2">Total</th>
+                    <tr style={{ borderBottom: '2px solid #333' }}>
+                      <th style={{ textAlign: 'left', padding: '8px 4px' }}>Item</th>
+                      <th style={{ textAlign: 'center', padding: '8px 4px' }}>Qty</th>
+                      <th style={{ textAlign: 'right', padding: '8px 4px' }}>Price</th>
+                      <th style={{ textAlign: 'right', padding: '8px 4px' }}>Total</th>
                     </tr>
                   </thead>
                   <tbody>
                     {lastSale.items.map((item, index) => (
-                      <tr key={index} className="border-b border-gray-200">
-                        <td className="py-2">{item.productName}</td>
-                        <td className="text-center py-2">{item.quantity}</td>
-                        <td className="text-right py-2">{formatCurrency(item.salePrice)}</td>
-                        <td className="text-right py-2">{formatCurrency(item.total)}</td>
+                      <tr key={index} style={{ borderBottom: '1px solid #ddd' }}>
+                        <td style={{ padding: '8px 4px' }}>{item.productName}</td>
+                        <td style={{ textAlign: 'center', padding: '8px 4px' }}>{item.quantity}</td>
+                        <td style={{ textAlign: 'right', padding: '8px 4px' }}>{formatCurrency(item.salePrice)}</td>
+                        <td style={{ textAlign: 'right', padding: '8px 4px' }}>{formatCurrency(item.total)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -630,7 +717,7 @@ const POS = () => {
                   <span>{formatCurrency(lastSale.subtotal)}</span>
                 </div>
                 {lastSale.discount > 0 && (
-                  <div className="flex justify-between text-green-600">
+                  <div className="flex justify-between">
                     <span>Discount:</span>
                     <span>-{formatCurrency(lastSale.discount)}</span>
                   </div>
@@ -639,13 +726,13 @@ const POS = () => {
                   <span>Tax:</span>
                   <span>{formatCurrency(lastSale.tax)}</span>
                 </div>
-                <div className="flex justify-between text-lg font-bold border-t-2 border-gray-300 pt-2">
+                <div className="flex justify-between font-bold border-t pt-2" style={{ fontSize: '16px', borderTop: '2px solid #333', paddingTop: '10px', marginTop: '10px' }}>
                   <span>Total:</span>
                   <span>{formatCurrency(lastSale.total)}</span>
                 </div>
               </div>
 
-              <div className="border-t border-gray-300 pt-3 text-sm">
+              <div className="border-t pt-3 text-sm" style={{ borderTop: '1px solid #ddd', paddingTop: '10px' }}>
                 <p>
                   <strong>Payment Method:</strong> {lastSale.paymentMethod}
                 </p>
@@ -661,7 +748,7 @@ const POS = () => {
                 )}
               </div>
 
-              <div className="text-center mt-6 text-xs text-gray-500">
+              <div className="text-center mt-6 text-xs">
                 <p>Thank you for your purchase!</p>
                 <p>Visit us again soon 🐾</p>
               </div>

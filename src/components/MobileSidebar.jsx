@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   ShoppingCart,
@@ -14,9 +14,12 @@ import {
   TruckIcon,
   FileText,
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const MobileSidebar = ({ isOpen, onClose }) => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const menuItems = [
     { path: '/', icon: LayoutDashboard, label: 'Dashboard', id: 'dashboard' },
@@ -34,6 +37,12 @@ const MobileSidebar = ({ isOpen, onClose }) => {
       return location.pathname === '/';
     }
     return location.pathname.startsWith(path);
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+    onClose();
   };
 
   if (!isOpen) return null;
@@ -90,7 +99,10 @@ const MobileSidebar = ({ isOpen, onClose }) => {
 
         {/* Logout */}
         <div className="p-6 border-t border-white border-opacity-20">
-          <button className="flex items-center space-x-3 text-white text-opacity-80 hover:text-white transition w-full">
+          <button 
+            onClick={handleLogout}
+            className="flex items-center space-x-3 text-white text-opacity-80 hover:text-white transition w-full"
+          >
             <LogOut className="h-5 w-5" />
             <span>Logout</span>
           </button>

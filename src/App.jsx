@@ -23,6 +23,7 @@ import Reports from './pages/Reports';
 
 function App() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   return (
     <AuthProvider>
@@ -41,7 +42,10 @@ function App() {
                     <div className="flex min-h-screen bg-bg-light">
                       {/* Desktop Sidebar */}
                       <div className="hidden lg:block">
-                        <Sidebar />
+                        <Sidebar 
+                          isCollapsed={isSidebarCollapsed}
+                          onToggle={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                        />
                       </div>
 
                       {/* Mobile Sidebar */}
@@ -51,14 +55,16 @@ function App() {
                       />
 
                       {/* Main Content Area */}
-                      <div className="flex-1 lg:ml-64">
+                      <div className={`flex-1 transition-all duration-300 ${isSidebarCollapsed ? 'lg:ml-20' : 'lg:ml-64'}`}>
                         <Header
                           onMenuToggle={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                           isMobileMenuOpen={isMobileMenuOpen}
+                          isSidebarCollapsed={isSidebarCollapsed}
+                          onSidebarToggle={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
                         />
                         
                         {/* Main Content */}
-                        <main className="mt-16 p-6">
+                        <main className="mt-20 p-6">
                           <Routes>
                             <Route path="/" element={<Home />} />
                             <Route path="/pos" element={<POS />} />

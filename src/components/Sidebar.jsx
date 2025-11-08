@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   Package,
@@ -14,11 +14,13 @@ import {
   FileText,
   Store,
   BarChart3,
-  PawPrint,
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
-const Sidebar = () => {
+const Sidebar = ({ isCollapsed = false, onToggle }) => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const menuItems = [
     { path: '/', icon: LayoutDashboard, label: 'Dashboard', id: 'dashboard' },
@@ -38,20 +40,15 @@ const Sidebar = () => {
     return location.pathname.startsWith(path);
   };
 
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
   return (
-    <div className="w-64 h-screen fixed left-0 top-0 flex flex-col shadow-2xl bg-gradient-to-b from-hospital-primary via-hospital-primary to-hospital-dark">
-      {/* Logo Section with enhanced design */}
-      <div className="p-6 border-b border-white border-opacity-10 backdrop-blur-sm">
-        <div className="flex items-center space-x-3 animate-fadeIn">
-          <div className="bg-white rounded-xl p-2.5 shadow-lg hover-scale">
-            <PawPrint className="h-7 w-7 text-hospital-primary" />
-          </div>
-          <div className="text-white">
-            <h1 className="font-bold text-xl tracking-tight">Pet Shop</h1>
-            <p className="text-xs opacity-90 font-medium">Management System</p>
-          </div>
-        </div>
-      </div>
+    <div className={`h-screen fixed left-0 top-0 flex flex-col shadow-2xl bg-gradient-to-b from-hospital-primary via-hospital-primary to-hospital-dark transition-all duration-300 z-30 ${isCollapsed ? 'w-20' : 'w-64'}`}>
+      {/* Empty Header Space - Height matches header */}
+      <div className="h-20 border-b border-white border-opacity-10"></div>
 
       {/* Menu Items */}
       <nav className="flex-1 py-6">
@@ -63,21 +60,29 @@ const Sidebar = () => {
             <Link
               key={item.id}
               to={item.path}
-              className={`flex items-center space-x-3 px-6 py-3.5 mx-3 my-1 rounded-xl transition-all duration-300 group relative overflow-hidden ${
+              title={isCollapsed ? item.label : ''}
+              className={`flex items-center ${isCollapsed ? 'justify-center px-3' : 'space-x-3 px-6'} py-3.5 mx-3 my-1 rounded-xl transition-all duration-300 group relative overflow-hidden ${
                 active
                   ? 'bg-white bg-opacity-20 text-white font-semibold shadow-lg backdrop-blur-sm'
                   : 'text-white text-opacity-85 hover:bg-white hover:bg-opacity-10 hover:text-white'
               }`}
             >
-              {active && (
+              {active && !isCollapsed && (
                 <div className="absolute left-0 top-0 bottom-0 w-1 bg-white rounded-r-full"></div>
               )}
-              <Icon className={`h-5 w-5 transition-transform duration-300 ${active ? 'scale-110' : 'group-hover:scale-110'}`} />
-              <span className="font-medium">{item.label}</span>
-              {active && (
-                <div className="ml-auto">
-                  <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-                </div>
+              {active && isCollapsed && (
+                <div className="absolute inset-0 bg-white bg-opacity-10 rounded-xl"></div>
+              )}
+              <Icon className={`h-5 w-5 transition-transform duration-300 ${active ? 'scale-110' : 'group-hover:scale-110'} relative z-10`} />
+              {!isCollapsed && (
+                <>
+                  <span className="font-medium">{item.label}</span>
+                  {active && (
+                    <div className="ml-auto">
+                      <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                    </div>
+                  )}
+                </>
               )}
             </Link>
           );
@@ -86,9 +91,13 @@ const Sidebar = () => {
 
       {/* Logout Section with enhanced styling */}
       <div className="p-6 border-t border-white border-opacity-10 backdrop-blur-sm">
-        <button className="flex items-center justify-center space-x-3 text-white bg-white bg-opacity-10 hover:bg-opacity-20 transition-all duration-300 w-full py-3 rounded-xl font-medium hover:shadow-lg group">
+        <button 
+          onClick={handleLogout}
+          title={isCollapsed ? 'Logout' : ''}
+          className={`flex items-center justify-center ${!isCollapsed && 'space-x-3'} text-white bg-white bg-opacity-10 hover:bg-opacity-20 transition-all duration-300 w-full py-3 rounded-xl font-medium hover:shadow-lg group`}
+        >
           <LogOut className="h-5 w-5 group-hover:rotate-12 transition-transform duration-300" />
-          <span>Logout</span>
+          {!isCollapsed && <span>Logout</span>}
         </button>
       </div>
     </div>
